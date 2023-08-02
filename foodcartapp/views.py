@@ -65,11 +65,33 @@ def product_list_api(request):
 def register_order(request):
     try:
         order_info = request.data
-        if not order_info['products']:
-            raise ValueError
-        print(order_info)
-        if isinstance(order_info['products'], list) == False:
-            raise AssertionError
+
+        keys_to_check = ['products', 'firstname', 'lastname', 'phonenumber', 'address']
+        if not order_info['products'] or not isinstance(order_info['products'], list):
+            return Response({'error': 'Список продуктов пуст'}, status=400)
+
+        for product in order_info['products']:
+            if not Product.objects.filter(id__contains=product['product']):
+                return Response({
+                    f'error: Недопустимый первичный ключ {product["product"]}'}, status=400)
+
+        if not isinstance(order_info['firstname'], str):
+            return Response({'error': 'В поле firstname положили список.'}, status=400)
+
+        missing_keys =[key for key in keys_to_check if key not in order_info]
+        if missing_keys:
+            return Response({'error': f'Отсутствуют обязательные  ключи:{missing_keys}'}, status=400)
+
+        empty_field =[key for key, value in order_info.items() if not value]
+        if empty_field:
+            return Response({'error': f'Это поле не может быть пустым:{empty_field}'}, status=400)
+
+        for digit in range(5):
+            if order_info['phonenumber'][digit] == '0':
+                return Response({'error': 'phonenumber: Введен некорректный номер телефона'}, status=400)
+
+
+
 
         order = Order.objects.create(
             name=order_info['firstname'],
@@ -84,9 +106,5 @@ def register_order(request):
                 order=order
             )
         return Response({'order_id': order.id}, status=201)
-    except AssertionError:
-        return Response({'error': 'product key null or not a list'}, status=400)
-    except ValueError:
-        return Response({'error': 'list is empty'}, status=400)
     except KeyError:
         return Response({'error': 'key not found'}, status=400)
