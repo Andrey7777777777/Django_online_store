@@ -65,7 +65,12 @@ def product_list_api(request):
 def register_order(request):
     try:
         order_info = request.data
+        if not order_info['products']:
+            raise ValueError
         print(order_info)
+        if isinstance(order_info['products'], list) == False:
+            raise AssertionError
+
         order = Order.objects.create(
             name=order_info['firstname'],
             family_name=order_info['lastname'],
@@ -79,6 +84,9 @@ def register_order(request):
                 order=order
             )
         return Response({'order_id': order.id}, status=201)
-
+    except AssertionError:
+        return Response({'error': 'product key null or not a list'}, status=400)
     except ValueError:
-        return Response({'error': 'Invalid JSON'}, status=400)
+        return Response({'error': 'list is empty'}, status=400)
+    except KeyError:
+        return Response({'error': 'key not found'}, status=400)
