@@ -131,15 +131,15 @@ class OrderItem(models.Model):
 
 
 class Order(models.Model):
-    name = models.CharField('Имя', max_length=50, blank=False, null=False)
-    family_name = models.CharField('Фамилия', max_length=50, blank=False, null=False)
-    phone = PhoneNumberField('Телефон', blank=False, null=False)
+    lastname = models.CharField('Имя', max_length=50, blank=False, null=False)
+    firstname = models.CharField('Фамилия', max_length=50, blank=False, null=False)
+    phonenumber = PhoneNumberField('Телефон', blank=False, null=False)
     adress = models.CharField('Адрес', max_length=300, blank=False, null=False)
 
     class Meta:
         verbose_name = 'Заказ'
         verbose_name_plural = 'Заказы'
-        unique_together = ['name', 'family_name', 'phone', 'adress']
+        unique_together = ['lastname', 'firstname', 'phonenumber', 'adress']
 
     def __str__(self):
         return f"{self.name} {self.family_name} {self.adress}"
