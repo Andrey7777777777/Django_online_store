@@ -127,7 +127,7 @@ class RestaurantMenuItem(models.Model):
 class OrderItem(models.Model):
     product = models.ForeignKey('Product', on_delete=models.CASCADE, blank=False, null=False)
     quantity = models.IntegerField('Колличество', validators=[MinValueValidator(0)], default=1, blank=False, null=False)
-    order = models.ForeignKey('Order', on_delete=models.CASCADE, related_name='items', blank=False, null=False)
+    order = models.ForeignKey('Order', on_delete=models.CASCADE, related_name='products', blank=False, null=False)
 
 
 class Order(models.Model):
