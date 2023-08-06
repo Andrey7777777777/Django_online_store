@@ -69,7 +69,7 @@ class OrderItemSerializer(ModelSerializer):
 
 
 class OrderSerializer(ModelSerializer):
-    products = OrderItemSerializer(many=True, allow_empty=False)
+    products = OrderItemSerializer(many=True, allow_empty=False, write_only=True)
 
     class Meta:
          model = Order
@@ -82,15 +82,20 @@ def register_order(request):
     serializer_order = OrderSerializer(data=order_info)
     serializer_order.is_valid(raise_exception=True)
     order = Order.objects.create(
-        firstname=order_info['firstname'],
-        lastname=order_info['lastname'],
-        phonenumbe=order_info['phonenumber'],
-        adress=order_info['adress']
+        firstname=serializer_order.validated_data['firstname'],
+        lastname=serializer_order.validated_data['lastname'],
+        phonenumber=serializer_order.validated_data['phonenumber'],
+        adress=serializer_order.validated_data['adress']
     )
-    for products in order_info['products']:
+    for products in serializer_order.validated_data['products']:
         order_item = OrderItem.objects.create(
-            product_id=products['product'],
+            product=products['product'],
             quantity=products['quantity'],
             order=order
         )
-    return Response({'order_id': order.id}, status=201)
+    return Response({'id': order.id,
+                     'firstname': serializer_order.validated_data['firstname'],
+                     'lastname': serializer_order.validated_data['lastname'],
+                     'phonenumber': serializer_order.validated_data['phonenumber'],
+                     'adress': serializer_order.validated_data['adress']
+                     })

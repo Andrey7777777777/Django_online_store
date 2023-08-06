@@ -142,4 +142,4 @@ class Order(models.Model):
         unique_together = ['lastname', 'firstname', 'phonenumber', 'adress']
 
     def __str__(self):
-        return f"{self.name} {self.family_name} {self.adress}"
+        return f"{self.lastname} {self.firstname} {self.adress}"
