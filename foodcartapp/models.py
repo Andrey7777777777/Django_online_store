@@ -1,6 +1,7 @@
 from django.db import models
 from django.core.validators import MinValueValidator
 from phonenumber_field.modelfields import PhoneNumberField
+from django.db.models import F, Sum
 
 
 class OrderQuerySet(models.QuerySet):
@@ -135,19 +136,26 @@ class OrderItem(models.Model):
     product = models.ForeignKey('Product', on_delete=models.CASCADE, blank=False, null=False)
     quantity = models.IntegerField('Колличество', validators=[MinValueValidator(0)], default=1, blank=False, null=False)
     order = models.ForeignKey('Order', on_delete=models.CASCADE, related_name='products', blank=False, null=False)
+    price = models.DecimalField('Цена', max_digits=8,
+                                decimal_places=2,
+                                validators=[MinValueValidator(0)],
+                                blank=False,
+                                null=False,
+                                )
 
 
 class Order(models.Model):
     lastname = models.CharField('Имя', max_length=50, blank=False, null=False)
     firstname = models.CharField('Фамилия', max_length=50, blank=False, null=False)
     phonenumber = PhoneNumberField('Телефон', blank=False, null=False)
-    adress = models.CharField('Адрес', max_length=300, blank=False, null=False)
+    address = models.CharField('Адрес', max_length=300, blank=False, null=False)
     objects = OrderQuerySet.as_manager()
+
 
     class Meta:
         verbose_name = 'Заказ'
         verbose_name_plural = 'Заказы'
-        unique_together = ['lastname', 'firstname', 'phonenumber', 'adress']
+        unique_together = ['lastname', 'firstname', 'phonenumber', 'address']
 
     def __str__(self):
-        return f"{self.lastname} {self.firstname} {self.adress}"
+        return f"{self.lastname} {self.firstname} {self.address}"

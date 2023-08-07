@@ -73,7 +73,7 @@ class OrderSerializer(ModelSerializer):
 
     class Meta:
          model = Order
-         fields = ['firstname', 'lastname', 'phonenumber', 'adress', 'products']
+         fields = ['firstname', 'lastname', 'phonenumber', 'address', 'products']
 
 
 @api_view(['POST'])
@@ -85,17 +85,18 @@ def register_order(request):
         firstname=serializer_order.validated_data['firstname'],
         lastname=serializer_order.validated_data['lastname'],
         phonenumber=serializer_order.validated_data['phonenumber'],
-        adress=serializer_order.validated_data['adress']
+        address=serializer_order.validated_data['address']
     )
     for products in serializer_order.validated_data['products']:
         order_item = OrderItem.objects.create(
             product=products['product'],
             quantity=products['quantity'],
+            price=products['product'].price * products['quantity'],
             order=order
         )
     return Response({'id': order.id,
                      'firstname': serializer_order.validated_data['firstname'],
                      'lastname': serializer_order.validated_data['lastname'],
                      'phonenumber': serializer_order.validated_data['phonenumber'],
-                     'adress': serializer_order.validated_data['adress']
+                     'address': serializer_order.validated_data['address']
                      })

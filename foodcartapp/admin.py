@@ -27,8 +27,15 @@ class OrderAdmin(admin.ModelAdmin):
         'lastname',
         'firstname',
         'phonenumber',
-        'adress'
+        'address'
     ]
+
+    def save_formset(self, request, form, formset, change):
+        instances = formset.save(commit=False)
+        for instance in instances:
+            instance.price = instance.product.price * instance.quantity
+            instance.save()
+        formset.save_m2m()
     inlines = [
         OrderItemInline,
     ]
@@ -119,6 +126,15 @@ class ProductAdmin(admin.ModelAdmin):
         edit_url = reverse('admin:foodcartapp_product_change', args=(obj.id,))
         return format_html('<a href="{edit_url}"><img src="{src}" style="max-height: 50px;"/></a>', edit_url=edit_url, src=obj.image.url)
     get_image_list_preview.short_description = 'превью'
+
+
+@admin.register(OrderItem)
+class OrderItemAdmin(admin.ModelAdmin):
+     list_display = [
+         'product',
+         'quantity',
+         'order',
+     ]
 
 
 @admin.register(ProductCategory)
