@@ -30,7 +30,8 @@ class OrderAdmin(admin.ModelAdmin):
         'lastname',
         'firstname',
         'phonenumber',
-        'address'
+        'address',
+        'status'
     ]
 
     def save_formset(self, request, form, formset, change):
