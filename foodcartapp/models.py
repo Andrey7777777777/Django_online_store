@@ -157,11 +157,18 @@ class Order(models.Model):
         ('В пути', 'В пути'),
         ('Доставлен', 'Доставлен')
     ]
-    status = models.CharField('Статус заказа', max_length=50, choices=ORDER_STATUS_CHOICES, default='new', blank=False,)
+    status = models.CharField('Статус заказа', max_length=50, choices=ORDER_STATUS_CHOICES, default='new', blank=False)
     comment = models.TextField('Комментарий', max_length=300, blank=True, null=True)
     registered_at = models.DateTimeField('Дата регистрации заказа', default=timezone.now, blank=True, null=True)
     called_at = models.DateTimeField('Дата звонка', blank=True, null=True)
     delivered_at = models.DateTimeField('Дата доставки', blank=True, null=True)
+    way_of_payment = models.CharField('Способ оплаты',
+                                      max_length=50,
+                                      choices=[('Наличными', 'Наличными'), ('Картой', 'Картой')],
+                                      default='Картой',
+                                      blank=False,
+                                      null=False
+                                      )
 
 
     class Meta:
