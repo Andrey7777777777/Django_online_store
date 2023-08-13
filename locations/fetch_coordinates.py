@@ -2,6 +2,7 @@ import time
 
 import requests
 from environs import Env
+from locations.models import Location
 
 
 def fetch_coordinates(apikey, address):
@@ -30,3 +31,13 @@ def fetch_coordinates(apikey, address):
         except requests.exceptions.HTTPError:
              time.sleep(2)
     return None, None
+
+
+def create_location(address, apikey):
+    lon, lat = fetch_coordinates(address, apikey)
+    Location.objects.get_or_create(
+        address=address,
+        lat=lat,
+        lon=lon,
+    )
+    return lon, lat

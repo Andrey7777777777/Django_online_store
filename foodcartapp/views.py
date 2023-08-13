@@ -7,6 +7,8 @@ from rest_framework.response import Response
 from rest_framework.serializers import ModelSerializer
 from django.db import transaction
 from .fetch_coordinates import fetch_coordinates
+from locations.fetch_coordinates import create_location
+from locations.models import Location
 
 
 from .models import Product, Order, OrderItem, RestaurantMenuItem, Restaurant
@@ -82,15 +84,22 @@ class OrderSerializer(ModelSerializer):
 @transaction.atomic
 def register_order(request):
     order_info = request.data
+    locations = Location.objects.all()
     serializer_order = OrderSerializer(data=order_info)
     serializer_order.is_valid(raise_exception=True)
+    client_address = serializer_order.validated_data['address']
+    if client_address not in locations.values_list('address', flat=True):
+        lon, lat = create_location(serializer_order.validated_data['address'], settings.YANDEX_GEOCODER_API_KEY)
+    else:
+        lon = Location.objects.get(address=client_address).lon
+        lat = Location.objects.get(address=client_address).lat
     order = Order.objects.create(
         firstname=serializer_order.validated_data['firstname'],
         lastname=serializer_order.validated_data['lastname'],
         phonenumber=serializer_order.validated_data['phonenumber'],
         address=serializer_order.validated_data['address'],
-        lat=fetch_coordinates(serializer_order.validated_data['address'])[1],
-        lon=fetch_coordinates(serializer_order.validated_data['address'])[0],
+        lat=lat,
+        lon=lon,
     )
 
     for products in serializer_order.validated_data['products']:
