@@ -6,7 +6,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.serializers import ModelSerializer
 from django.db import transaction
-from django.shortcuts import get_object_or_404
+from .fetch_coordinates import fetch_coordinates
 
 
 from .models import Product, Order, OrderItem, RestaurantMenuItem, Restaurant
@@ -88,8 +88,11 @@ def register_order(request):
         firstname=serializer_order.validated_data['firstname'],
         lastname=serializer_order.validated_data['lastname'],
         phonenumber=serializer_order.validated_data['phonenumber'],
-        address=serializer_order.validated_data['address']
+        address=serializer_order.validated_data['address'],
+        lat=fetch_coordinates(serializer_order.validated_data['address'])[1],
+        lon=fetch_coordinates(serializer_order.validated_data['address'])[0],
     )
+
     for products in serializer_order.validated_data['products']:
         order_item = OrderItem.objects.create(
             product=products['product'],

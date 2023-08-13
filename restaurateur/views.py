@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import user_passes_test
 
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
+from geopy import distance
 
 
 from foodcartapp.models import Product, Restaurant, Order, RestaurantMenuItem
@@ -95,6 +96,7 @@ def view_orders(request):
     orders = Order.objects.prefetch_related('products').exclude(status='Доставлен').get_total_price().order_by('status')
     available_restaurants = []
     for order in orders:
+        order_address = order.lat, order.lon
         restaurants_per_product = []
         for product in order.products.all():
             restaurants = Restaurant.objects.filter(
@@ -102,12 +104,21 @@ def view_orders(request):
                 menu_items__availability=True
             )
             restaurants_per_product.append(restaurants)
-            print(restaurants_per_product[1:])
 
         common_restaurants = set(restaurants_per_product[0]).intersection(*restaurants_per_product[1:])
-        available_restaurants.append((order, common_restaurants))
-        print(available_restaurants)
+        restaurants_with_distance = []
+        for restaurant in common_restaurants:
+            restaurant_address = restaurant.lat, restaurant.lon
+            rounded_distance = round(distance.distance(order_address, restaurant_address).kilometers, 2)
+            restaurants_with_distance.append((restaurant, rounded_distance))
+
+        closest_restaurant, min_distances = min(restaurants_with_distance, key=lambda x: x[1])
+        print(type(closest_restaurant), type(min_distances))
+        available_restaurants.append((order, closest_restaurant, min_distances))
+        for item in available_restaurants:
+            print(item)
+
+
     return render(request, template_name='order_items.html', context={
-        'order_items': orders,
         'available_restaurants': available_restaurants,
     })

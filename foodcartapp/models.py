@@ -27,6 +27,8 @@ class Restaurant(models.Model):
         max_length=50,
         blank=True,
     )
+    lat = models.FloatField('Широта', null=True, blank=True)
+    lon = models.FloatField('Долгота', null=True, blank=True)
 
     class Meta:
         verbose_name = 'ресторан'
@@ -171,6 +173,8 @@ class Order(models.Model):
                                       )
     restaurateur = models.ForeignKey('Restaurant', on_delete=models.CASCADE, related_name='orders', blank=True,
                                      null=True)
+    lat = models.FloatField('Широта', null=True, blank=True)
+    lon = models.FloatField('Долгота', null=True, blank=True)
 
     def save(self, *args, **kwargs):
         if self.pk:
