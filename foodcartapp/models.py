@@ -1,7 +1,7 @@
 from django.db import models
 from django.core.validators import MinValueValidator
 from phonenumber_field.modelfields import PhoneNumberField
-from django.db.models import F, Sum
+from django.db.models import F, Sum, Subquery
 from django.utils import timezone
 
 
@@ -169,7 +169,15 @@ class Order(models.Model):
                                       blank=False,
                                       null=False
                                       )
+    restaurateur = models.ForeignKey('Restaurant', on_delete=models.CASCADE, related_name='orders', blank=True,
+                                     null=True)
 
+    def save(self, *args, **kwargs):
+        if self.pk:
+            current_order = Order.objects.get(pk=self.pk)
+            if current_order.restaurateur != self.restaurateur and self.status == 'Новый':
+                self.status = 'Готовится'
+        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = 'Заказ'

@@ -6,9 +6,10 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.serializers import ModelSerializer
 from django.db import transaction
+from django.shortcuts import get_object_or_404
 
 
-from .models import Product, Order, OrderItem
+from .models import Product, Order, OrderItem, RestaurantMenuItem, Restaurant
 
 
 def banners_list_api(request):
@@ -96,9 +97,5 @@ def register_order(request):
             price=products['product'].price * products['quantity'],
             order=order
         )
-    return Response({'id': order.id,
-                     'firstname': serializer_order.validated_data['firstname'],
-                     'lastname': serializer_order.validated_data['lastname'],
-                     'phonenumber': serializer_order.validated_data['phonenumber'],
-                     'address': serializer_order.validated_data['address']
-                     })
+
+    return Response(serializer_order.data, status=201)

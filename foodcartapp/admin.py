@@ -33,13 +33,7 @@ class OrderAdmin(admin.ModelAdmin):
         'address',
         'status'
     ]
-
-    def save_formset(self, request, form, formset, change):
-        instances = formset.save(commit=False)
-        for instance in instances:
-            instance.price = instance.product.price * instance.quantity
-            instance.save()
-        formset.save_m2m()
+    ordering = ['status']
     inlines = [
         OrderItemInline,
     ]
