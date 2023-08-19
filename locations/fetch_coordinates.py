@@ -40,4 +40,3 @@ def create_location(address, apikey):
         return lon, lat
     except TypeError as e:
         return None, None
-    

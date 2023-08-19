@@ -75,6 +75,32 @@ class OrderItemSerializer(ModelSerializer):
 class OrderSerializer(ModelSerializer):
     products = OrderItemSerializer(many=True, allow_empty=False, write_only=True)
 
+    def create(self, validated_data):
+        client_address = validated_data['address']
+        locations = Location.objects.values_list('address', flat=True)
+        if client_address not in locations.values_list('address', flat=True):
+            lon, lat = create_location(validated_data['address'], settings.YANDEX_GEOCODER_API_KEY)
+        else:
+            lon = Location.objects.get(address=client_address).lon
+            lat = Location.objects.get(address=client_address).lat
+        order = Order.objects.create(
+            firstname=validated_data['firstname'],
+            lastname=validated_data['lastname'],
+            phonenumber=validated_data['phonenumber'],
+            address=validated_data['address'],
+            lat=lat,
+            lon=lon,
+        )
+
+        for products in validated_data['products']:
+            order_item = OrderItem.objects.create(
+                product=products['product'],
+                quantity=products['quantity'],
+                price=products['product'].price * products['quantity'],
+                order=order
+            )
+        return order
+
     class Meta:
          model = Order
          fields = ['firstname', 'lastname', 'phonenumber', 'address', 'products']
@@ -84,30 +110,7 @@ class OrderSerializer(ModelSerializer):
 @transaction.atomic
 def register_order(request):
     order_info = request.data
-    locations = Location.objects.all()
     serializer_order = OrderSerializer(data=order_info)
     serializer_order.is_valid(raise_exception=True)
-    client_address = serializer_order.validated_data['address']
-    if client_address not in locations.values_list('address', flat=True):
-        lon, lat = create_location(serializer_order.validated_data['address'], settings.YANDEX_GEOCODER_API_KEY)
-    else:
-        lon = Location.objects.get(address=client_address).lon
-        lat = Location.objects.get(address=client_address).lat
-    order = Order.objects.create(
-        firstname=serializer_order.validated_data['firstname'],
-        lastname=serializer_order.validated_data['lastname'],
-        phonenumber=serializer_order.validated_data['phonenumber'],
-        address=serializer_order.validated_data['address'],
-        lat=lat,
-        lon=lon,
-    )
-
-    for products in serializer_order.validated_data['products']:
-        order_item = OrderItem.objects.create(
-            product=products['product'],
-            quantity=products['quantity'],
-            price=products['product'].price * products['quantity'],
-            order=order
-        )
-
-    return Response(serializer_order.data, status=201)
+    serializer_order.save()
+    return Response(serializer_order.data)
