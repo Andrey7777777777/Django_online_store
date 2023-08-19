@@ -27,6 +27,6 @@ def fetch_coordinates(apikey, address):
             most_relevant = found_places[0]
             lon, lat = most_relevant['GeoObject']['Point']['pos'].split(" ")
             return lon, lat
-        except requests.exceptions.HTTPError:
+        except TypeError as e:
              time.sleep(2)
     return None, None
