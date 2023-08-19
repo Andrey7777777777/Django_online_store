@@ -1,14 +1,10 @@
 import time
 
 import requests
-from environs import Env
 from locations.models import Location
 
 
 def fetch_coordinates(apikey, address):
-    env = Env()
-    env.read_env()
-    apikey = env.str("YANDEX_GEOCODER_API_KEY")
     base_url = "https://geocode-maps.yandex.ru/1.x"
     max_retries = 3
     retries = 0
