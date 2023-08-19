@@ -30,10 +30,14 @@ def fetch_coordinates(apikey, address):
 
 
 def create_location(address, apikey):
-    lon, lat = fetch_coordinates(address, apikey)
-    Location.objects.get_or_create(
-        address=address,
-        lat=lat,
-        lon=lon,
-    )
-    return lon, lat
+    try:
+        lon, lat = fetch_coordinates(address, apikey)
+        Location.objects.get_or_create(
+            address=address,
+            lat=lat,
+            lon=lon,
+        )
+        return lon, lat
+    except TypeError as e:
+        return None, None
+    
