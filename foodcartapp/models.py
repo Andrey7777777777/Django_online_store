@@ -136,22 +136,20 @@ class RestaurantMenuItem(models.Model):
 
 
 class OrderItem(models.Model):
-    product = models.ForeignKey('Product', on_delete=models.CASCADE, blank=False, null=False)
-    quantity = models.IntegerField('Количество', validators=[MinValueValidator(1)], default=1, blank=False, null=False)
-    order = models.ForeignKey('Order', on_delete=models.CASCADE, related_name='products', blank=False, null=False)
+    product = models.ForeignKey('Product', on_delete=models.CASCADE)
+    quantity = models.IntegerField('Количество', validators=[MinValueValidator(1)], default=1)
+    order = models.ForeignKey('Order', on_delete=models.CASCADE, related_name='products')
     price = models.DecimalField('Цена', max_digits=8,
                                 decimal_places=2,
-                                validators=[MinValueValidator(0)],
-                                blank=False,
-                                null=False,
+                                validators=[MinValueValidator(0)]
                                 )
 
 
 class Order(models.Model):
-    lastname = models.CharField('Имя', max_length=50, blank=False)
-    firstname = models.CharField('Фамилия', max_length=50, blank=False)
-    phonenumber = PhoneNumberField('Телефон', blank=False, null=False)
-    address = models.CharField('Адрес', max_length=300, blank=False)
+    lastname = models.CharField('Имя', max_length=50)
+    firstname = models.CharField('Фамилия', max_length=50)
+    phonenumber = PhoneNumberField('Телефон')
+    address = models.CharField('Адрес', max_length=300)
     objects = OrderQuerySet.as_manager()
     ORDER_STATUS_CHOICES = [
         ('Новый', 'Новый'),
@@ -159,7 +157,7 @@ class Order(models.Model):
         ('В пути', 'В пути'),
         ('Доставлен', 'Доставлен')
     ]
-    status = models.CharField('Статус заказа', max_length=50, choices=ORDER_STATUS_CHOICES, default='new', blank=False)
+    status = models.CharField('Статус заказа', max_length=50, choices=ORDER_STATUS_CHOICES, default='new')
     comment = models.TextField('Комментарий', max_length=300, blank=True)
     registered_at = models.DateTimeField('Дата регистрации заказа', default=timezone.now, blank=True, null=True)
     called_at = models.DateTimeField('Дата звонка', blank=True, null=True)
