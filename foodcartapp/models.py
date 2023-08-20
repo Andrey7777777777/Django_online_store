@@ -162,7 +162,7 @@ class Order(models.Model):
     registered_at = models.DateTimeField('Дата регистрации заказа', default=timezone.now, blank=True, null=True)
     called_at = models.DateTimeField('Дата звонка', blank=True, null=True)
     delivered_at = models.DateTimeField('Дата доставки', blank=True, null=True)
-    way_of_payment = models.CharField('Способ оплаты',
+    payment_method = models.CharField('Способ оплаты',
                                       max_length=50,
                                       choices=[('Наличными', 'Наличными'), ('Картой', 'Картой')],
                                       default='Картой',
