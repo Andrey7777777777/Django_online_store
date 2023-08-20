@@ -39,9 +39,11 @@ class OrderAdmin(admin.ModelAdmin):
     ]
 
     def response_post_save_change(self, request, obj):
+        res = super().response_post_save_change(request, obj)
         if "next" in request.GET:
-            return redirect(reverse('restaurateur:view_orders'))
-        return redirect(reverse('admin:foodcartapp_order_changelist'))
+            return HttpResponseRedirect(request.GET['next'])
+        else:
+            return res
 
 
 @admin.register(Restaurant)
