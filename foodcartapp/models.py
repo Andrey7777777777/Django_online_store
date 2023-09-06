@@ -173,16 +173,6 @@ class Order(models.Model):
     lat = models.FloatField('Широта', null=True, blank=True, default=None)
     lon = models.FloatField('Долгота', null=True, blank=True, default=None)
 
-    def clean(self):
-        super().clean()
-        if self.pk:
-            current_order = Order.objects.get(pk=self.pk)
-            if current_order.restaurateur != self.restaurateur and self.status == 'Новый':
-                self.status = 'Готовится'
-            elif current_order.restaurateur != self.restaurateur \
-                    and self.status == 'Готовится' and self.restaurateur is None:
-                self.status = 'Новый'
-
     class Meta:
         verbose_name = 'Заказ'
         verbose_name_plural = 'Заказы'
